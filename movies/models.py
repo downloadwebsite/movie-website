@@ -124,13 +124,19 @@ class Movie(models.Model):
         return list(self.genres.values_list('name', flat=True))
 
     def get_poster_url(self):
-        if self.poster and hasattr(self.poster, 'url'):
-            return self.poster.url
-        return '/static/images/no-poster.jpg'
+        try:
+            if self.poster and hasattr(self.poster, 'url'):
+                return self.poster.url
+        except Exception:
+            pass
+        return '/static/images/no-poster.svg'
 
     def get_backdrop_url(self):
-        if self.backdrop and hasattr(self.backdrop, 'url'):
-            return self.backdrop.url
+        try:
+            if self.backdrop and hasattr(self.backdrop, 'url'):
+                return self.backdrop.url
+        except Exception:
+            pass
         return self.get_poster_url()
 
 

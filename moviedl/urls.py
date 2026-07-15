@@ -21,6 +21,7 @@ urlpatterns = [
     path('core/', include('core.urls')),
 ]
 
-urlpatterns += [
-    re_path(r'^media/(?P<path>.*)$', serve_media),
-]
+if not os.environ.get('CLOUDINARY_URL'):
+    urlpatterns += [
+        re_path(r'^media/(?P<path>.*)$', serve_media),
+    ]

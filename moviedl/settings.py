@@ -113,6 +113,16 @@ STATICFILES_STORAGE = 'whitenoise.storage.WhiteNoiseStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Cloudinary (for persistent file storage)
+CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL', '')
+if CLOUDINARY_URL:
+    INSTALLED_APPS = INSTALLED_APPS + ['cloudinary_storage', 'cloudinary']
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    CLOUDINARY_STORAGE = {
+        'SECURE': True,
+    }
+    MEDIA_URL = f'https://res.cloudinary.com/{CLOUDINARY_URL.split("@")[1].split(".")[0]}/image/upload/' if '@' in CLOUDINARY_URL else '/media/'
+
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

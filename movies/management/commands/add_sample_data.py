@@ -24,7 +24,7 @@ class Command(BaseCommand):
         categories = {}
         for cat_data in categories_data:
             cat, _ = Category.objects.update_or_create(
-                slug=cat_data['slug'],
+                name=cat_data['name'],
                 defaults=cat_data
             )
             categories[cat_data['slug']] = cat

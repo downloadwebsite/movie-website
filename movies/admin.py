@@ -162,7 +162,6 @@ class EpisodeVersionInline(admin.StackedInline):
     model = EpisodeVersion
     extra = 1
     fields = ('version_type', 'title', 'language', 'has_subtitle')
-    inlines = [EpisodeDownloadLinkInline]
 
 
 class EpisodeInline(admin.StackedInline):
@@ -177,7 +176,6 @@ class SeasonInline(admin.StackedInline):
     model = Season
     extra = 1
     fields = ('number', 'title', 'description', 'release_year', 'episode_count')
-    inlines = [EpisodeInline]
     show_change_link = True
 
 

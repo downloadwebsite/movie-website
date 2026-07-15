@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}تماس با ما - {{ site_settings.site_name|default:'فیلمولوژی' }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-5">
+                <h2 class="mb-3">
+                    <i class="fas fa-envelope me-2"></i> تماس با ما
+                </h2>
+                <div class="divider mx-auto"></div>
+            </div>
+
+            <div class="row">
+                <!-- Contact Info -->
+                <div class="col-md-5 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">اطلاعات تماس</h5>
+
+                            {% if site_settings.contact_email %}
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="contact-icon me-3">
+                                    <i class="fas fa-envelope fa-lg text-primary"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block">ایمیل</small>
+                                    <a href="mailto:{{ site_settings.contact_email }}" class="text-decoration-none">
+                                        {{ site_settings.contact_email }}
+                                    </a>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if site_settings.contact_phone %}
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="contact-icon me-3">
+                                    <i class="fas fa-phone fa-lg text-success"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block">تلفن</small>
+                                    <a href="tel:{{ site_settings.contact_phone }}" class="text-decoration-none" dir="ltr">
+                                        {{ site_settings.contact_phone }}
+                                    </a>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if site_settings.contact_address %}
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="contact-icon me-3">
+                                    <i class="fas fa-map-marker-alt fa-lg text-danger"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block">آدرس</small>
+                                    <span>{{ site_settings.contact_address }}</span>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <hr>
+
+                            <h6 class="mb-3">شبکه‌های اجتماعی</h6>
+                            <div class="social-links">
+                                {% if site_settings.telegram_link %}
+                                <a href="{{ site_settings.telegram_link }}" class="btn btn-outline-primary btn-sm me-2" target="_blank">
+                                    <i class="fab fa-telegram"></i>
+                                </a>
+                                {% endif %}
+                                {% if site_settings.instagram_link %}
+                                <a href="{{ site_settings.instagram_link }}" class="btn btn-outline-danger btn-sm me-2" target="_blank">
+                                    <i class="fab fa-instagram"></i>
+                                </a>
+                                {% endif %}
+                                {% if site_settings.youtube_link %}
+                                <a href="{{ site_settings.youtube_link }}" class="btn btn-outline-warning btn-sm me-2" target="_blank">
+                                    <i class="fab fa-youtube"></i>
+                                </a>
+                                {% endif %}
+                                {% if site_settings.twitter_link %}
+                                <a href="{{ site_settings.twitter_link }}" class="btn btn-outline-info btn-sm" target="_blank">
+                                    <i class="fab fa-twitter"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
+                <div class="col-md-7 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title mb-4">ارسال پیام</h5>
+
+                            <form method="POST">
+                                {% csrf_token %}
+
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">نام</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">ایمیل</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="subject" class="form-label">موضوع</label>
+                                    <input type="text" class="form-control" id="subject" name="subject" required>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="message" class="form-label">پیام</label>
+                                    <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-paper-plane me-2"></i> ارسال پیام
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

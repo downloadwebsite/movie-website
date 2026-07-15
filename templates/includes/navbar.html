@@ -1,0 +1,178 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <!-- Brand -->
+        <a class="navbar-brand" href="{% url 'movies:home' %}">
+            <i class="fas fa-play-circle"></i>
+            {% if site_settings.site_logo %}
+            <img src="{{ site_settings.site_logo.url }}" alt="{{ site_settings.site_name }}" height="35" class="ms-2">
+            {% else %}
+            {{ site_settings.site_name|default:'فیلمولوژی' }}
+            {% endif %}
+        </a>
+
+        <!-- Toggler -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="تغییر منو">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Nav Content -->
+        <div class="collapse navbar-collapse" id="mainNav">
+            <!-- Main Nav -->
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'movies:home' %}">
+                        <i class="fas fa-home me-1"></i> صفحه اصلی
+                    </a>
+                </li>
+
+                <!-- Movies Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+                        <i class="fas fa-film me-1"></i> فیلم‌ها
+                    </a>
+                    <ul class="dropdown-menu mega-dropdown">
+                        <li class="dropdown-header">
+                            <i class="fas fa-th-large me-2"></i> دسته‌بندی‌ها
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li class="dropdown-items-grid">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <a class="dropdown-item" href="{% url 'movies:movie_list' %}">
+                                        <i class="fas fa-border-all me-2"></i> همه فیلم‌ها
+                                    </a>
+                                </div>
+                                {% for category in categories %}
+                                <div class="col-6">
+                                    <a class="dropdown-item" href="{% url 'movies:category_detail' slug=category.slug %}">
+                                        <i class="fas fa-{{ category.icon|default:'folder' }} me-2"></i> {{ category.name }}
+                                    </a>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'series_list' %}active{% endif %}" href="{% url 'movies:series_list' %}">
+                        <i class="fas fa-tv me-1"></i> سریال‌ها
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'top_rated' %}active{% endif %}" href="{% url 'movies:top_rated' %}">
+                        <i class="fas fa-star me-1"></i> برترین‌ها
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'contact' %}active{% endif %}" href="{% url 'core:contact' %}">
+                        <i class="fas fa-envelope me-1"></i> تماس با ما
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Search -->
+            <form class="search-form me-3 d-none d-lg-block" action="{% url 'movies:search' %}" method="GET">
+                <div class="input-group">
+                    <input type="search" class="form-control" name="q" placeholder="جستجو..." value="{{ query|default:'' }}" autocomplete="off">
+                    <button class="btn btn-search" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+
+            <!-- User Menu -->
+            <ul class="navbar-nav">
+                {% if user.is_authenticated %}
+                <li class="nav-item dropdown user-dropdown">
+                    <a class="nav-link dropdown-toggle user-menu-btn" href="#" data-bs-toggle="dropdown">
+                        <div class="user-avatar">
+                            {% if user.avatar %}
+                            <img src="{{ user.avatar.url }}" alt="{{ user.username }}">
+                            {% else %}
+                            <i class="fas fa-user"></i>
+                            {% endif %}
+                        </div>
+                        <span class="user-name d-none d-lg-inline">{{ user.username }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu">
+                        <li class="dropdown-header">
+                            <div class="d-flex align-items-center">
+                                <div class="user-avatar-lg me-2">
+                                    {% if user.avatar %}
+                                    <img src="{{ user.avatar.url }}" alt="{{ user.username }}">
+                                    {% else %}
+                                    <i class="fas fa-user"></i>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ user.get_full_name|default:user.username }}</div>
+                                    <small class="text-muted">@{{ user.username }}</small>
+                                </div>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'accounts:profile' %}">
+                                <i class="fas fa-user-circle me-2"></i> پروفایل من
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'accounts:favorites' %}">
+                                <i class="fas fa-heart me-2"></i> علاقه‌مندی‌ها
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'accounts:download_history' %}">
+                                <i class="fas fa-download me-2"></i> تاریخچه دانلود
+                            </a>
+                        </li>
+                        {% if user.is_staff %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'admin:index' %}">
+                                <i class="fas fa-cog me-2"></i> پنل مدیریت
+                            </a>
+                        </li>
+                        {% endif %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger logout-btn" href="{% url 'accounts:logout' %}">
+                                <i class="fas fa-sign-out-alt me-2"></i> خروج
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link btn-auth-login" href="{% url 'accounts:login' %}">
+                        <i class="fas fa-sign-in-alt me-1"></i> ورود
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link btn-auth-register" href="{% url 'accounts:register' %}">
+                        <i class="fas fa-user-plus me-1"></i> ثبت نام
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Mobile Search (visible on small screens) -->
+<div class="mobile-search d-lg-none">
+    <div class="container">
+        <form action="{% url 'movies:search' %}" method="GET">
+            <div class="input-group">
+                <input type="search" class="form-control" name="q" placeholder="جستجوی فیلم، سریال..." value="{{ query|default:'' }}">
+                <button class="btn btn-search" type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

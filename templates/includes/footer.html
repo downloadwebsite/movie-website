@@ -1,0 +1,88 @@
+{% load static %}
+<footer class="bg-dark text-light py-5 mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 mb-4">
+                <h5 class="mb-3">
+                    {% if site_settings.site_logo %}
+                    <img src="{{ site_settings.site_logo.url }}" alt="{{ site_settings.site_name }}" height="30" class="me-2">
+                    {% else %}
+                    <i class="fas fa-film me-2"></i>
+                    {% endif %}
+                    {{ site_settings.site_name|default:'فیلمولوژی' }}
+                </h5>
+                <p class="text-muted">{{ site_settings.site_description|default:'دانلود رایگان فیلم و سریال با کیفیت بالا' }}</p>
+
+                {% if site_settings.telegram_link or site_settings.instagram_link %}
+                <div class="social-links mt-3">
+                    {% if site_settings.telegram_link %}
+                    <a href="{{ site_settings.telegram_link }}" class="text-light me-3" target="_blank">
+                        <i class="fab fa-telegram fa-lg"></i>
+                    </a>
+                    {% endif %}
+                    {% if site_settings.instagram_link %}
+                    <a href="{{ site_settings.instagram_link }}" class="text-light me-3" target="_blank">
+                        <i class="fab fa-instagram fa-lg"></i>
+                    </a>
+                    {% endif %}
+                    {% if site_settings.youtube_link %}
+                    <a href="{{ site_settings.youtube_link }}" class="text-light me-3" target="_blank">
+                        <i class="fab fa-youtube fa-lg"></i>
+                    </a>
+                    {% endif %}
+                    {% if site_settings.twitter_link %}
+                    <a href="{{ site_settings.twitter_link }}" class="text-light" target="_blank">
+                        <i class="fab fa-twitter fa-lg"></i>
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="col-lg-2 col-md-4 mb-4">
+                <h6 class="mb-3">دسترسی سریع</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="{% url 'movies:home' %}" class="text-muted text-decoration-none">صفحه اصلی</a></li>
+                    <li class="mb-2"><a href="{% url 'movies:movie_list' %}" class="text-muted text-decoration-none">فیلم‌ها</a></li>
+                    <li class="mb-2"><a href="{% url 'movies:series_list' %}" class="text-muted text-decoration-none">سریال‌ها</a></li>
+                    <li class="mb-2"><a href="{% url 'movies:top_rated' %}" class="text-muted text-decoration-none">برترین‌ها</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-2 col-md-4 mb-4">
+                <h6 class="mb-3">حساب کاربری</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><a href="{% url 'accounts:login' %}" class="text-muted text-decoration-none">ورود</a></li>
+                    <li class="mb-2"><a href="{% url 'accounts:register' %}" class="text-muted text-decoration-none">ثبت نام</a></li>
+                    <li class="mb-2"><a href="{% url 'accounts:profile' %}" class="text-muted text-decoration-none">پروفایل</a></li>
+                    <li class="mb-2"><a href="{% url 'accounts:favorites' %}" class="text-muted text-decoration-none">علاقه‌مندی‌ها</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-4 col-md-4 mb-4">
+                <h6 class="mb-3">خبرنامه</h6>
+                <p class="text-muted small">برای دریافت آخرین اخبار و فیلم‌ها عضو شوید.</p>
+                <form action="{% url 'core:newsletter' %}" method="POST" class="d-flex">
+                    {% csrf_token %}
+                    <input type="email" name="email" class="form-control form-control-sm" placeholder="ایمیل خود را وارد کنید" required>
+                    <button type="submit" class="btn btn-primary btn-sm me-2">عضویت</button>
+                </form>
+            </div>
+        </div>
+
+        <hr class="my-4">
+
+        <div class="row align-items-center">
+            <div class="col-md-6 text-center text-md-start">
+                <p class="mb-0 text-muted small">
+                    {{ site_settings.footer_text|default:'تمامی حقوق این سایت محفوظ است.' }}
+                </p>
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <a href="{% url 'core:about' %}" class="text-muted text-decoration-none small me-3">درباره ما</a>
+                <a href="{% url 'core:faq' %}" class="text-muted text-decoration-none small me-3">سوالات متداول</a>
+                <a href="{% url 'core:contact' %}" class="text-muted text-decoration-none small">تماس با ما</a>
+            </div>
+        </div>
+    </div>
+</footer>

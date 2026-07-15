@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}صفحه اصلی - {{ site_settings.site_name|default:'فیلمولوژی' }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+{% if banners %}
+<section class="hero-section">
+    <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+            {% for banner in banners %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                <div class="hero-slide" style="background-image: url('{{ banner.movie.get_backdrop_url }}');">
+                    <div class="hero-overlay"></div>
+                    <div class="container">
+                        <div class="hero-content">
+                            <h1>{{ banner.movie.title }}</h1>
+                            <p>{{ banner.movie.short_description|default:banner.movie.description|truncatewords:25 }}</p>
+                            <div class="hero-meta">
+                                {% if banner.movie.imdb_rating %}
+                                <span class="badge bg-warning">
+                                    <i class="fas fa-star me-1"></i> {{ banner.movie.imdb_rating }}
+                                </span>
+                                {% endif %}
+                                {% if banner.movie.release_date %}
+                                <span class="badge bg-dark">
+                                    <i class="fas fa-calendar me-1"></i> {{ banner.movie.release_date.year }}
+                                </span>
+                                {% endif %}
+                                {% if banner.movie.duration %}
+                                <span class="badge bg-dark">
+                                    <i class="fas fa-clock me-1"></i> {{ banner.movie.duration }} دقیقه
+                                </span>
+                                {% endif %}
+                                <span class="badge bg-info">
+                                    {{ banner.movie.quality }}
+                                </span>
+                            </div>
+                            <div class="hero-actions">
+                                <a href="{{ banner.movie.get_absolute_url }}" class="btn btn-primary">
+                                    <i class="fas fa-play me-2"></i> مشاهده و دانلود
+                                </a>
+                                {% if banner.movie.trailer_url %}
+                                <a href="{{ banner.movie.trailer_url }}" class="btn btn-outline-light" target="_blank">
+                                    <i class="fas fa-film me-2"></i> تریلر
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        </button>
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Movies -->
+{% if featured_movies %}
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2><i class="fas fa-star"></i> فیلم‌های ویژه</h2>
+            <a href="{% url 'movies:movie_list' %}" class="btn btn-outline-primary btn-sm">
+                مشاهده همه <i class="fas fa-arrow-left"></i>
+            </a>
+        </div>
+        <div class="row g-3">
+            {% for movie in featured_movies %}
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="movie-card">
+                    <a href="{{ movie.get_absolute_url }}">
+                        <div class="movie-poster">
+                            <img src="{{ movie.get_poster_url }}" alt="{{ movie.title }}">
+                            <div class="movie-overlay">
+                                <i class="fas fa-play-circle"></i>
+                            </div>
+                            {% if movie.is_series %}
+                            <span class="badge bg-success badge-top-right">سریال</span>
+                            {% endif %}
+                            {% if movie.imdb_rating %}
+                            <span class="badge bg-warning badge-bottom-right">
+                                <i class="fas fa-star"></i> {{ movie.imdb_rating }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <div class="movie-info">
+                            <h6 class="movie-title">{{ movie.title }}</h6>
+                            <div class="movie-meta">
+                                {% if movie.release_date %}
+                                <span>{{ movie.release_date.year }}</span>
+                                {% endif %}
+                                {% if movie.duration %}
+                                <span><i class="fas fa-clock"></i> {{ movie.duration }}'</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Latest Movies -->
+{% if latest_movies %}
+<section class="section" style="background-color: var(--bg-card);">
+    <div class="container">
+        <div class="section-header">
+            <h2><i class="fas fa-clock"></i> جدیدترین فیلم‌ها</h2>
+            <a href="{% url 'movies:movie_list' %}?sort=newest" class="btn btn-outline-primary btn-sm">
+                مشاهده همه <i class="fas fa-arrow-left"></i>
+            </a>
+        </div>
+        <div class="row g-3">
+            {% for movie in latest_movies %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="movie-card">
+                    <a href="{{ movie.get_absolute_url }}">
+                        <div class="movie-poster">
+                            <img src="{{ movie.get_poster_url }}" alt="{{ movie.title }}">
+                            <div class="movie-overlay">
+                                <i class="fas fa-play-circle"></i>
+                            </div>
+                            {% if movie.is_series %}
+                            <span class="badge bg-success badge-top-right">سریال</span>
+                            {% endif %}
+                            <span class="badge bg-info badge-bottom-left">{{ movie.quality }}</span>
+                        </div>
+                        <div class="movie-info">
+                            <h6 class="movie-title">{{ movie.title }}</h6>
+                            <div class="movie-meta">
+                                {% if movie.release_date %}
+                                <span>{{ movie.release_date.year }}</span>
+                                {% endif %}
+                                {% if movie.duration %}
+                                <span><i class="fas fa-clock"></i> {{ movie.duration }}'</span>
+                                {% endif %}
+                                <span><i class="fas fa-eye"></i> {{ movie.views_count|intcomma }}</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Categories -->
+{% if categories %}
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2><i class="fas fa-th-large"></i> دسته‌بندی‌ها</h2>
+        </div>
+        <div class="row g-3">
+            {% for category in categories %}
+            <div class="col-6 col-md-4 col-lg-3">
+                <a href="{% url 'movies:category_detail' slug=category.slug %}" class="text-decoration-none">
+                    <div class="category-card">
+                        <i class="fas fa-{{ category.icon|default:'folder' }}"></i>
+                        <h5>{{ category.name }}</h5>
+                        <small>{{ category.get_movie_count }} فیلم و سریال</small>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Top Rated -->
+{% if top_rated %}
+<section class="section" style="background-color: var(--bg-card);">
+    <div class="container">
+        <div class="section-header">
+            <h2><i class="fas fa-trophy"></i> برترین فیلم‌ها</h2>
+            <a href="{% url 'movies:top_rated' %}" class="btn btn-outline-primary btn-sm">
+                مشاهده همه <i class="fas fa-arrow-left"></i>
+            </a>
+        </div>
+        <div class="row g-3">
+            {% for movie in top_rated %}
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="movie-card">
+                    <a href="{{ movie.get_absolute_url }}">
+                        <div class="movie-poster">
+                            <img src="{{ movie.get_poster_url }}" alt="{{ movie.title }}">
+                            <div class="movie-overlay">
+                                <i class="fas fa-play-circle"></i>
+                            </div>
+                            <span class="badge bg-warning badge-bottom-right">
+                                <i class="fas fa-star"></i> {{ movie.avg_rating|floatformat:1 }}
+                            </span>
+                        </div>
+                        <div class="movie-info">
+                            <h6 class="movie-title">{{ movie.title }}</h6>
+                            <div class="movie-meta">
+                                {% if movie.release_date %}
+                                <span>{{ movie.release_date.year }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Series -->
+{% if series_movies %}
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2><i class="fas fa-tv"></i> سریال‌ها</h2>
+            <a href="{% url 'movies:series_list' %}" class="btn btn-outline-primary btn-sm">
+                مشاهده همه <i class="fas fa-arrow-left"></i>
+            </a>
+        </div>
+        <div class="row g-3">
+            {% for movie in series_movies %}
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="movie-card">
+                    <a href="{{ movie.get_absolute_url }}">
+                        <div class="movie-poster">
+                            <img src="{{ movie.get_poster_url }}" alt="{{ movie.title }}">
+                            <div class="movie-overlay">
+                                <i class="fas fa-play-circle"></i>
+                            </div>
+                            <span class="badge bg-success badge-top-right">سریال</span>
+                            {% if movie.episode_count > 1 %}
+                            <span class="badge bg-dark badge-bottom-left">{{ movie.episode_count }} قسمت</span>
+                            {% endif %}
+                        </div>
+                        <div class="movie-info">
+                            <h6 class="movie-title">{{ movie.title }}</h6>
+                            <div class="movie-meta">
+                                {% if movie.release_date %}
+                                <span>{{ movie.release_date.year }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Most Downloaded -->
+{% if most_downloaded %}
+<section class="section" style="background-color: var(--bg-card);">
+    <div class="container">
+        <div class="section-header">
+            <h2><i class="fas fa-download"></i> پردانلودترین‌ها</h2>
+        </div>
+        <div class="row g-3">
+            {% for movie in most_downloaded %}
+            <div class="col-6 col-md-4 col-lg-2">
+                <div class="movie-card">
+                    <a href="{{ movie.get_absolute_url }}">
+                        <div class="movie-poster">
+                            <img src="{{ movie.get_poster_url }}" alt="{{ movie.title }}">
+                            <div class="movie-overlay">
+                                <i class="fas fa-play-circle"></i>
+                            </div>
+                            <span class="badge bg-success badge-bottom-left">
+                                <i class="fas fa-download"></i> {{ movie.download_count|intcomma }}
+                            </span>
+                        </div>
+                        <div class="movie-info">
+                            <h6 class="movie-title">{{ movie.title }}</h6>
+                            <div class="movie-meta">
+                                {% if movie.release_date %}
+                                <span>{{ movie.release_date.year }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

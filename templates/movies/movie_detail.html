@@ -1,0 +1,464 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ movie.title }} - {{ site_settings.site_name|default:'فیلمولوژی' }}{% endblock %}
+
+{% block content %}
+<!-- Movie Hero -->
+<section class="movie-hero" style="background-image: url('{{ movie.get_backdrop_url }}');">
+    <div class="movie-hero-overlay"></div>
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-3">
+                <div class="movie-detail-poster">
+                    <img src="{{ movie.get_poster_url }}" alt="{{ movie.title }}">
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="movie-detail-info">
+                    <h1>{{ movie.title }}</h1>
+
+                    <div class="movie-detail-meta">
+                        {% if movie.imdb_rating %}
+                        <span class="badge bg-warning">
+                            <i class="fas fa-star me-1"></i> {{ movie.imdb_rating }} IMDb
+                        </span>
+                        {% endif %}
+                        {% if movie.release_date %}
+                        <span class="badge bg-dark">
+                            <i class="fas fa-calendar me-1"></i> {{ movie.release_date.year }}
+                        </span>
+                        {% endif %}
+                        {% if movie.duration %}
+                        <span class="badge bg-dark">
+                            <i class="fas fa-clock me-1"></i> {{ movie.duration }} دقیقه
+                        </span>
+                        {% endif %}
+                        <span class="badge bg-info">{{ movie.quality }}</span>
+                        {% if movie.is_series %}
+                        <span class="badge bg-success">
+                            <i class="fas fa-tv me-1"></i> سریال ({{ movie.episode_count }} قسمت)
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    {% if movie.category %}
+                    <div class="info-row">
+                        <span class="label">دسته‌بندی:</span>
+                        <span class="value">
+                            <a href="{% url 'movies:category_detail' slug=movie.category.slug %}">{{ movie.category.name }}</a>
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    {% if movie.genres.all %}
+                    <div class="info-row">
+                        <span class="label">ژانر:</span>
+                        <span class="value">
+                            {% for genre in movie.genres.all %}
+                            <span class="badge bg-dark me-1">{{ genre.name }}</span>
+                            {% endfor %}
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    {% if movie.director %}
+                    <div class="info-row">
+                        <span class="label">کارگردان:</span>
+                        <span class="value">{{ movie.director }}</span>
+                    </div>
+                    {% endif %}
+
+                    {% if movie.actors %}
+                    <div class="info-row">
+                        <span class="label">بازیگران:</span>
+                        <span class="value">{{ movie.actors }}</span>
+                    </div>
+                    {% endif %}
+
+                    <div class="info-row">
+                        <span class="label">زبان:</span>
+                        <span class="value">{{ movie.language }}</span>
+                        {% if movie.country %}
+                        <span class="label me-3">کشور:</span>
+                        <span class="value">{{ movie.country }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="movie-detail-stats">
+                        <span>
+                            <i class="fas fa-eye"></i> {{ movie.views_count|intcomma }} بازدید
+                        </span>
+                        <span>
+                            <i class="fas fa-download"></i> {{ movie.download_count|intcomma }} دانلود
+                        </span>
+                        {% if avg_rating %}
+                        <span>
+                            <i class="fas fa-star text-warning"></i> {{ avg_rating|floatformat:1 }} ({{ rating_count }} امتیاز)
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="hero-actions">
+                        {% if movie.trailer_url %}
+                        <a href="{{ movie.trailer_url }}" class="btn btn-outline-light" target="_blank">
+                            <i class="fas fa-play me-2"></i> تریلر
+                        </a>
+                        {% endif %}
+
+                        {% if user.is_authenticated %}
+                        <button class="btn {% if is_favorite %}btn-danger{% else %}btn-outline-danger{% endif %} favorite-btn"
+                                data-url="{% url 'movies:toggle_favorite' slug=movie.slug %}">
+                            <i class="fas fa-heart me-2"></i>
+                            <span class="favorite-text">{% if is_favorite %}حذف از علاقه‌مندی{% else %}افزودن به علاقه‌مندی{% endif %}</span>
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Movie Content -->
+<section class="section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Description -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i> خلاصه فیلم</h5>
+                    </div>
+                    <div class="card-body">
+                        <p style="line-height: 2; color: var(--text-secondary);">{{ movie.description }}</p>
+                    </div>
+                </div>
+
+                <!-- Download Links -->
+                {% if links %}
+                <div class="card mb-4 download-table">
+                    <div class="card-header" style="background-color: var(--primary); color: white;">
+                        <h5 class="mb-0"><i class="fas fa-download me-2"></i> لینک‌های دانلود</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>کیفیت</th>
+                                        <th>نوع</th>
+                                        <th>زبان</th>
+                                        <th>حجم</th>
+                                        <th>زیرنویس</th>
+                                        <th>دانلود</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for link in links %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge bg-info">{{ link.quality }}</span>
+                                        </td>
+                                        <td>
+                                            {% if link.link_type == 'direct' %}
+                                            <span class="badge bg-primary">مستقیم</span>
+                                            {% elif link.link_type == 'torrent' %}
+                                            <span class="badge bg-warning">تورنت</span>
+                                            {% else %}
+                                            <span class="badge bg-success">آنلاین</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ link.language }}</td>
+                                        <td>{{ link.file_size|default:'نامشخص' }}</td>
+                                        <td>
+                                            {% if link.subtitle %}
+                                            <i class="fas fa-check-circle text-success"></i>
+                                            {% else %}
+                                            <i class="fas fa-times-circle text-danger"></i>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span class="text-muted small">
+                                                <i class="fas fa-download me-1"></i> {{ link.download_count|intcomma }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if user.is_authenticated %}
+                                            <a href="{% url 'movies:download_movie' slug=movie.slug link_id=link.id %}"
+                                               class="btn btn-success btn-sm">
+                                                <i class="fas fa-download me-1"></i> دانلود
+                                            </a>
+                                            {% else %}
+                                            <a href="{% url 'accounts:login' %}?next={{ request.path }}"
+                                               class="btn btn-outline-secondary btn-sm">
+                                                <i class="fas fa-lock me-1"></i> ورود
+                                            </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Rating -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0"><i class="fas fa-star me-2"></i> امتیازدهی</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if user.is_authenticated %}
+                        <form action="{% url 'movies:add_rating' slug=movie.slug %}" method="POST">
+                            {% csrf_token %}
+                            <div class="d-flex align-items-center flex-wrap gap-3">
+                                <span>امتیاز شما:</span>
+                                <div class="rating-stars">
+                                    {% for i in "1234567890" %}
+                                    <label class="rating-star" data-score="{{ forloop.counter }}">
+                                        <input type="radio" name="score" value="{{ forloop.counter }}" class="d-none"
+                                               {% if user_rating and user_rating.score == forloop.counter %}checked{% endif %}>
+                                        <i class="fas fa-star{% if user_rating and forloop.counter <= user_rating.score %} active{% endif %}"></i>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-sm">ثبت امتیاز</button>
+                            </div>
+                        </form>
+                        {% else %}
+                        <p class="text-muted mb-0">
+                            <a href="{% url 'accounts:login' %}?next={{ request.path }}">ورود کنید</a> تا امتیاز دهید.
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Comments -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-comments me-2"></i> نظرات ({{ comments.count }})
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if user.is_authenticated %}
+                        <form action="{% url 'movies:add_comment' slug=movie.slug %}" method="POST" class="mb-4">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <textarea name="text" class="form-control" rows="3"
+                                          placeholder="نظر خود را بنویسید..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-1"></i> ارسال نظر
+                            </button>
+                        </form>
+                        {% else %}
+                        <div class="alert alert-info">
+                            <a href="{% url 'accounts:login' %}?next={{ request.path }}">ورود کنید</a> تا بتوانید نظر ثبت کنید.
+                        </div>
+                        {% endif %}
+
+                        <div class="comments-list">
+                            {% for comment in comments %}
+                            <div class="comment-item">
+                                <div class="comment-header">
+                                    <div class="comment-user">
+                                        <i class="fas fa-user-circle"></i>
+                                        <div>
+                                            <strong>{{ comment.user.username }}</strong>
+                                            <div class="comment-time">{{ comment.created_at|timesince }} پیش</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="comment-text">{{ comment.text }}</div>
+
+                                {% if user.is_authenticated %}
+                                <button class="btn btn-link btn-sm text-muted reply-btn mt-2 p-0"
+                                        data-comment-id="{{ comment.id }}">
+                                    <i class="fas fa-reply me-1"></i> پاسخ
+                                </button>
+
+                                <div class="reply-form d-none mt-2" id="reply-form-{{ comment.id }}">
+                                    <form action="{% url 'movies:add_comment' slug=movie.slug %}" method="POST">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="parent_id" value="{{ comment.id }}">
+                                        <textarea name="text" class="form-control mb-2" rows="2"
+                                                  placeholder="پاسخ خود را بنویسید..." required></textarea>
+                                        <button type="submit" class="btn btn-primary btn-sm">ارسال پاسخ</button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm cancel-reply">لغو</button>
+                                    </form>
+                                </div>
+                                {% endif %}
+
+                                {% for reply in comment.get_replies %}
+                                <div class="reply-item">
+                                    <div class="comment-user">
+                                        <i class="fas fa-user-circle"></i>
+                                        <div>
+                                            <strong>{{ reply.user.username }}</strong>
+                                            <div class="comment-time">{{ reply.created_at|timesince }} پیش</div>
+                                        </div>
+                                    </div>
+                                    <div class="comment-text mt-2">{{ reply.text }}</div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% empty %}
+                            <div class="empty-state">
+                                <i class="fas fa-comments"></i>
+                                <p>هنوز نظری ثبت نشده است.</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Rating Box -->
+                <div class="card mb-4">
+                    <div class="card-body text-center py-4">
+                        {% if avg_rating %}
+                        <div style="font-size: 3rem; font-weight: 800; color: var(--accent);">
+                            {{ avg_rating|floatformat:1 }}
+                        </div>
+                        <div class="text-muted mb-2">از 10</div>
+                        <div class="mb-2">
+                            {% for i in "1234567890" %}
+                            {% if forloop.counter <= avg_rating %}
+                            <i class="fas fa-star" style="color: var(--accent);"></i>
+                            {% elif forloop.counter <= avg_rating|add:"0.5" %}
+                            <i class="fas fa-star-half-alt" style="color: var(--accent);"></i>
+                            {% else %}
+                            <i class="far fa-star" style="color: var(--border-color);"></i>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                        <small class="text-muted">{{ rating_count }} امتیاز</small>
+                        {% else %}
+                        <div class="text-muted">
+                            <i class="fas fa-star fa-3x mb-2" style="opacity: 0.3;"></i>
+                            <p>هنوز امتیازی ثبت نشده</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Related Movies -->
+                {% if related_movies %}
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-film me-2"></i> فیلم‌های مشابه</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            {% for related in related_movies %}
+                            <div class="col-6">
+                                <a href="{{ related.get_absolute_url }}" class="text-decoration-none">
+                                    <div class="related-movie">
+                                        <img src="{{ related.get_poster_url }}" alt="{{ related.title }}"
+                                             class="img-fluid rounded" style="aspect-ratio: 2/3; object-fit: cover;">
+                                        <small class="d-block mt-1 text-truncate" style="font-size: 0.75rem;">{{ related.title }}</small>
+                                    </div>
+                                </a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Share -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="mb-0"><i class="fas fa-share-alt me-2"></i> اشتراک‌گذاری</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex gap-2">
+                            <a href="https://telegram.me/share?url={{ request.build_absolute_uri }}" target="_blank"
+                               class="btn btn-outline-primary btn-sm flex-fill">
+                                <i class="fab fa-telegram me-1"></i> تلگرام
+                            </a>
+                            <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}" target="_blank"
+                               class="btn btn-outline-info btn-sm flex-fill">
+                                <i class="fab fa-twitter me-1"></i> توییتر
+                            </a>
+                            <a href="https://wa.me/?text={{ request.build_absolute_uri }}" target="_blank"
+                               class="btn btn-outline-success btn-sm flex-fill">
+                                <i class="fab fa-whatsapp me-1"></i> واتساپ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Favorite toggle
+    $('.favorite-btn').click(function(e) {
+        e.preventDefault();
+        var btn = $(this);
+        var url = btn.data('url');
+
+        $.ajax({
+            url: url,
+            type: 'POST',
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            success: function(response) {
+                if (response.status === 'added') {
+                    btn.find('.favorite-text').text('حذف از علاقه‌مندی');
+                    btn.removeClass('btn-outline-danger').addClass('btn-danger');
+                } else {
+                    btn.find('.favorite-text').text('افزودن به علاقه‌مندی');
+                    btn.removeClass('btn-danger').addClass('btn-outline-danger');
+                }
+            }
+        });
+    });
+
+    // Reply buttons
+    $('.reply-btn').click(function() {
+        var commentId = $(this).data('comment-id');
+        $('#reply-form-' + commentId).removeClass('d-none');
+    });
+
+    $('.cancel-reply').click(function() {
+        $(this).closest('.reply-form').addClass('d-none');
+    });
+
+    // Rating stars
+    $('.rating-star').hover(
+        function() {
+            var score = $(this).data('score');
+            $('.rating-stars .rating-star').each(function(index) {
+                if (index < score) {
+                    $(this).find('i').css('color', 'var(--accent)');
+                } else {
+                    $(this).find('i').css('color', 'var(--border-color)');
+                }
+            });
+        },
+        function() {
+            $('.rating-stars .rating-star i').each(function() {
+                if ($(this).hasClass('active')) {
+                    $(this).css('color', 'var(--accent)');
+                } else {
+                    $(this).css('color', 'var(--border-color)');
+                }
+            });
+        }
+    );
+});
+</script>
+{% endblock %}

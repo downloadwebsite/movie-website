@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}جستجو - {{ site_settings.site_name|default:'فیلمولوژی' }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-5">
+                <h2 class="mb-3">
+                    <i class="fas fa-search me-2"></i> جستجوی فیلم
+                </h2>
+                <form action="{% url 'movies:search' %}" method="GET" class="mb-4">
+                    <div class="input-group input-group-lg">
+                        <input type="search" class="form-control" name="q" value="{{ query }}"
+                               placeholder="نام فیلم، کارگردان، بازیگر..." autofocus>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search me-2"></i> جستجو
+                        </button>
+                    </div>
+                </form>
+
+                {% if query %}
+                <p class="text-muted">
+                    {% if movies %}
+                    {{ movies|length }} نتیجه برای "{{ query }}" یافت شد.
+                    {% else %}
+                    نتیجه‌ای برای "{{ query }}" یافت نشد.
+                    {% endif %}
+                </p>
+                {% endif %}
+            </div>
+
+            {% if movies %}
+            <div class="row g-4">
+                {% for movie in movies %}
+                <div class="col-6 col-md-4">
+                    <div class="movie-card">
+                        <a href="{{ movie.get_absolute_url }}">
+                            <div class="movie-poster">
+                                <img src="{{ movie.get_poster_url }}" alt="{{ movie.title }}" class="img-fluid">
+                                <div class="movie-overlay">
+                                    <i class="fas fa-play-circle fa-3x"></i>
+                                </div>
+                                {% if movie.is_series %}
+                                <span class="badge bg-success series-badge">سریال</span>
+                                {% endif %}
+                                <span class="badge bg-info quality-badge">{{ movie.quality }}</span>
+                                {% if movie.imdb_rating %}
+                                <span class="badge bg-warning imdb-badge">
+                                    <i class="fas fa-star"></i> {{ movie.imdb_rating }}
+                                </span>
+                                {% endif %}
+                            </div>
+                            <div class="movie-info mt-2">
+                                <h6 class="movie-title mb-1">{{ movie.title }}</h6>
+                                <small class="text-muted">
+                                    {% if movie.release_date %}{{ movie.release_date.year }}{% endif %}
+                                    {% if movie.duration %} | {{ movie.duration }} دقیقه{% endif %}
+                                </small>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+            <nav class="mt-5">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?q={{ query }}&page={{ page_obj.previous_page_number }}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?q={{ query }}&page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?q={{ query }}&page={{ page_obj.next_page_number }}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% elif query %}
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">نتیجه‌ای یافت نشد</h4>
+                <p class="text-muted">لطفا عبارت دیگری را جستجو کنید.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}درباره ما - {{ site_settings.site_name|default:'فیلمولوژی' }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-5">
+                <h2 class="mb-3">
+                    <i class="fas fa-info-circle me-2"></i> درباره ما
+                </h2>
+                <div class="divider mx-auto"></div>
+            </div>
+
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    {% if site_settings.about_us %}
+                    <div class="about-content">
+                        {{ site_settings.about_us|linebreaks }}
+                    </div>
+                    {% else %}
+                    <p class="lead text-muted text-center">
+                        {{ site_settings.site_name|default:'فیلمولوژی' }} یک پلتفرم دانلود فیلم و سریال با کیفیت بالا است.
+                        ما تلاش می‌کنیم بهترین محتوای سینمایی را با بالاترین کیفیت در اختیار کاربران قرار دهیم.
+                    </p>
+
+                    <h4 class="mt-4 mb-3">چرا ما؟</h4>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            دانلود با کیفیت‌های مختلف (480p, 720p, 1080p, 4K)
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            آپدیت روزانه با جدیدترین فیلم‌ها و سریال‌ها
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            زیرنویس فارسی و دوبله فارسی
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            رابط کاربری ساده و زیبا
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            پشتیبانی سریع و پاسخگو
+                        </li>
+                    </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

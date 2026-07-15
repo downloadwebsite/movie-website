@@ -1,8 +1,17 @@
 from django.contrib import admin
 from django.urls import path, include, re_path
 from django.conf import settings
-from django.views.static import serve
+from django.http import FileResponse, Http404
+import os
 from core.views import health_check
+
+
+def serve_media(request, path):
+    file_path = os.path.join(settings.MEDIA_ROOT, path)
+    if os.path.isfile(file_path):
+        return FileResponse(open(file_path, 'rb'))
+    raise Http404
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -12,11 +21,6 @@ urlpatterns = [
     path('core/', include('core.urls')),
 ]
 
-if settings.DEBUG:
-    urlpatterns += [
-        re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-    ]
-else:
-    urlpatterns += [
-        re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-    ]
+urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', serve_media),
+]

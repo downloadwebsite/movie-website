@@ -4,10 +4,7 @@
     "builder": "nixpacks"
   },
   "deploy": {
-    "startCommand": "python manage.py migrate && python manage.py collectstatic --noinput && gunicorn moviedl.wsgi",
     "healthcheckPath": "/health/",
-    "healthcheckTimeout": 30,
-    "restartPolicyType": "on_failure",
-    "restartPolicyMaxRetries": 3
+    "healthcheckTimeout": 30
   }
 }
